@@ -9,6 +9,7 @@ use App\Http\Controllers\SanctumController;
 use App\Http\Controllers\JWTController;
 use App\Http\Controllers\CuentasController;
 use App\Http\Controllers\ImagenesController;
+use App\Http\Controllers\UsersController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -23,19 +24,30 @@ use App\Http\Controllers\ImagenesController;
 Route::post('login', [AuthController::class, 'login']);
 
 Route::post('register', [AuthController::class, 'register']);
-
 Route::get('activate/{user}', [CuentasController::class, 'activate'])->name('activate')->middleware('signed');
-
 Route::post('reactivate', [CuentasController::class, 'reActivate']);
 
 
-Route::middleware(['auth:sanctum', 'usuarioActivo'])->group(function () {
-    Route::post('subirImagen', [ImagenesController::class, 'subirImagen']); 
-    
-    Route::get('verImagen', [ImagenesController::class, 'verImagen']);
+Route::middleware(['auth:sanctum'])->GROUP(function () {
 
-    Route::post('actualizarImagen', [ImagenesController::class, 'editarImagen']);
-}); 
+    // FOTOS DE PERFIL
+    Route::middleware(['admin/user'])->GROUP(function () {    
+        Route::post('subirImagen', [ImagenesController::class, 'subirImagen']); 
+        Route::get('verImagen', [ImagenesController::class, 'verImagen']);
+        Route::post('actualizarImagen', [ImagenesController::class, 'editarImagen']);
+    });
+
+    // RUTAS DE ADMIN
+    Route::middleware(['admin'])->GROUP(function () {  
+        // USUARIOS
+        Route::get('usuarios', [UsersController::class, 'index']);
+        Route::get('usuarios/{id}', [UsersController::class, 'show']);
+        Route::put('usuarios/{id}', [UsersController::class, 'update']);
+        Route::delete('usuarios/{id}', [UsersController::class, 'destroy']);
+        Route::put('usuarios', [UsersController::class, 'updateRol']);
+    });
+
+});
 
 
 

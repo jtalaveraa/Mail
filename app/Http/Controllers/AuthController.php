@@ -34,6 +34,7 @@ class AuthController extends Controller
         $user->name = $data['name'];
         $user->email = $data['email'];
         $user->password = Hash::make($data['password']);
+        $user->rol = "guest";
         $user->save();
 
         $url = URL::temporarySignedRoute('activate', now()->addMinutes(5), ['user' => $user->id]);
@@ -57,11 +58,18 @@ class AuthController extends Controller
             'password' => ['required', 'string', 'min:8'],
         ]);
 
+        
         if ($validate->fails()) {
             return response()->json($validate->errors());
         }
 
         $user = User::where('email', $data['email'])->first();
+
+        if ($user->rol === 'guest') {
+            return response()->json([
+                'message' => 'Acceso denegado. Por favor, contacte con un administrador para obtener acceso.'
+            ], 403);
+        }
 
         if (!$user->is_active) {
             return response()->json([

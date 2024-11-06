@@ -6,8 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-
-class VerificarRol
+class VerificarAdmin
 {
     /**
      * Handle an incoming request.
@@ -19,14 +18,12 @@ class VerificarRol
     public function handle(Request $request, Closure $next)
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->is_active) {
-            return response()->json(['message' => 'Cuenta inactiva. Activa tu cuenta mediante el correo que se te envió al crear tu cuenta o reactiva tu cuenta.'], 403);
-        }
 
-        if (!in_array($user->rol, ['admin', 'user'])) {
+        if (!in_array($user->rol, ['admin'])) {
             return response()->json(['message' => 'Acceso denegado. Rol no autorizado.'], 403);
         }
         return $next($request);
+
+
     }
 }
